@@ -16,19 +16,14 @@ spec:
         - name: librarymanagement
           image: akshatpandya04/librarymanagement:1.0
           imagePullPolicy: Always
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql-service:3306/librarydb"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "root"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "5fdkyi2mas"
+            - name: SPRING_RABBITMQ_HOST
+              value: "rabbitmq-service"
           ports:
             - containerPort: 8080
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: librarymanagement-service
-spec:
-  type: LoadBalancer
-  selector:
-    app: librarymanagement
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8080
