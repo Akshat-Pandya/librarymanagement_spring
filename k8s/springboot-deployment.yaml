@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: librarymanagement
-          image: akshatpandya04/librarymanagement:1.0
+          image: akshatpandya04/librarymanagement:{{IMAGE_TAG}}
           imagePullPolicy: Always
           env:
             - name: SPRING_DATASOURCE_URL

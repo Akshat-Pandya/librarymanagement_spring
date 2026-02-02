@@ -1,0 +1,78 @@
+name: Deploy LibraryManagement to GKE
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'Dockerfile'
+      - 'pom.xml'
+      - 'k8s/**'
+      - '.github/workflows/deploy.yml'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+      GKE_ZONE: ${{ secrets.GKE_ZONE }}
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Write GCP SA key to file
+        run: |
+          echo '${{ secrets.GCP_GKE_SA_KEY }}' > $HOME/gcloud-key.json
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: $HOME/gcloud-key.json
+          project_id: ${{ secrets.GCP_PROJECT }}
+          export_default_credentials: true
+
+      - name: Authenticate and configure GKE
+        run: |
+          gcloud auth activate-service-account --key-file=$HOME/gcloud-key.json
+          gcloud config set project ${{ secrets.GCP_PROJECT }}
+          gcloud config set compute/zone ${{ secrets.GKE_ZONE }}
+          gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }}
+
+      - name: Log in to Docker Hub
+        run: |
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+
+      - name: Build Spring Boot JAR
+        run: mvn clean package -DskipTests
+
+      - name: Build Docker image
+        run: |
+          IMAGE_TAG=$(git rev-parse --short HEAD)
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          docker build -t $DOCKER_USERNAME/librarymanagement:$IMAGE_TAG .
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push $DOCKER_USERNAME/librarymanagement:$IMAGE_TAG
+
+      - name: Install kubectl and GKE plugin
+        run: |
+          sudo apt-get update && sudo apt-get install -y kubectl
+          gcloud components install gke-gcloud-auth-plugin
+
+      - name: Deploy Spring Boot to GKE
+        run: |
+          kubectl set image deployment/librarymanagement librarymanagement=$DOCKER_USERNAME/librarymanagement:$IMAGE_TAG
+          kubectl rollout status deployment/librarymanagement
+
+      - name: Apply MySQL & RabbitMQ (if not applied)
+        run: |
+          kubectl apply -f k8s/mysql-deployment.yaml
+          kubectl apply -f k8s/mysql-service.yaml
+          kubectl apply -f k8s/rabbitmq-deployment.yaml
+          kubectl apply -f k8s/rabbitmq-service.yaml
