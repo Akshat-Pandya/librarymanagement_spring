@@ -37,7 +37,13 @@ public class AuthController {
 
     @GetMapping("/test")
     public String testEndpoint() {
-        return "Test endpoint is working!";
+        System.out.println("Sample Test Log");
+        return "Test endpoint is working and live!";
+    }
+    @GetMapping("/test2")
+    public String testEndpoint2() {
+        System.out.println("Sample Test Log 2");
+        return "Test endpoint is working and live 2!";
     }
 
     @PostMapping("/login")
