@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  app:
+    image: akshatpandya04/librarymanagement:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - rabbitmq
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/librarydb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 5fdkyi2mas
+      SPRING_RABBITMQ_HOST: rabbitmq
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: 5fdkyi2mas
+      MYSQL_DATABASE: librarydb
+    ports:
+      - "3307:3306"
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  mysql_data:
