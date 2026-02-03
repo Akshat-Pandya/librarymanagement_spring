@@ -44,6 +44,11 @@ public class AuthController {
         return "App LibraryManagement is live and working";
     }
 
+    @GetMapping("/health-check2")
+    public String testEndpoint3() {
+        return "App LibraryManagement is live and working";
+    }
+
     @PostMapping("/login")
     public String login(@RequestBody User user) {
         Authentication auth = authManager.authenticate(
