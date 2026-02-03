@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.pandastudios.librarymanagement.config.RabbitConfig;
 import com.pandastudios.librarymanagement.dto.BorrowBookDto;
 import com.pandastudios.librarymanagement.dto.BorrowRecordResponseDto;
 import com.pandastudios.librarymanagement.dto.ReturnBookDto;
@@ -48,12 +47,7 @@ public class BorrowRecordController {
         log.setAction("Borrow Book Attempt");
         log.setMessage("User "+currUser.getEmail()+" attempted to borrow book with ID "+dto.getBookId()+". Result: "+(response!=null?"Success":"Failure"));
 
-        rabbitTemplate.convertAndSend(RabbitConfig.BORROW_EXCHANGE, RabbitConfig.BORROW_ROUTING_KEY, log,
-            message -> {
-                message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
-                return message;
-            }
-        );
+        
 
         return response;
     }
@@ -67,13 +61,6 @@ public class BorrowRecordController {
         AuditLog log=new AuditLog();
         log.setAction("Return Book Attempt");
         log.setMessage("User "+currUser.getEmail()+" attempted to return book corresponding to record ID "+dto.getRecordId()+". Result: "+(response!=null?"Success":"Failure"));
-
-        rabbitTemplate.convertAndSend(RabbitConfig.RETURN_EXCHANGE, RabbitConfig.RETURN_ROUTING_KEY, log,
-            message -> {
-                message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
-                return message;
-            }
-        );
 
         return response;
     }

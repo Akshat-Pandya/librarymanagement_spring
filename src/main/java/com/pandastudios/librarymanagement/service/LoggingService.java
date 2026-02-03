@@ -3,10 +3,7 @@ package com.pandastudios.librarymanagement.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
-
-import com.pandastudios.librarymanagement.config.RabbitConfig;
 import com.pandastudios.librarymanagement.entity.AuditLog;
 import com.pandastudios.librarymanagement.repository.LoggingRepository;
 
@@ -26,12 +23,13 @@ public class LoggingService {
         return loggingRepository.findAll();
     }
 
-    @RabbitListener(queues={"borrow-logging-queue", "return-logging-queue"})
+    
     public void saveLog(AuditLog logMessage) {
-        log.info("Saving log: Action - {}, Message - {}", logMessage.getAction(), logMessage.getMessage()); 
+        log.info("Saving log: Action - {}, Message - {}", logMessage.getAction(), logMessage.getMessage());
         loggingRepository.save(logMessage);
     }
 
+    
     public List<AuditLog> findByActionKeyword(String keyword) {
         return loggingRepository.findByActionContainingIgnoreCase(keyword);
     }
