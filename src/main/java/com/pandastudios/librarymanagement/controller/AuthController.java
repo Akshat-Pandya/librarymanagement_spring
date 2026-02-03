@@ -33,7 +33,7 @@ public class AuthController {
         return userService.createUser(userdto);
     }
 
-    @GetMapping("/test")
+    @GetMapping("/test2")
     public String testEndpoint() {
         System.out.println("Sample Test Log");
         return "Test endpoint is working and live!";
