@@ -15,8 +15,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 
-
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -40,10 +38,10 @@ public class AuthController {
         System.out.println("Sample Test Log");
         return "Test endpoint is working and live!";
     }
-    @GetMapping("/test2")
+
+    @GetMapping("/health-check")
     public String testEndpoint2() {
-        System.out.println("Sample Test Log 2");
-        return "Test endpoint is working and live 2!";
+        return "App LibraryManagement is live and working";
     }
 
     @PostMapping("/login")
@@ -51,11 +49,9 @@ public class AuthController {
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         user.getEmail(),
-                        user.getPassword()
-                )
-        );
+                        user.getPassword()));
 
         return jwtUtil.generateToken(auth.getName());
     }
-    
+
 }
