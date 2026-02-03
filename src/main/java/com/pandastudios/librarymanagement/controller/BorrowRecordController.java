@@ -17,6 +17,7 @@ import com.pandastudios.librarymanagement.dto.BorrowRecordResponseDto;
 import com.pandastudios.librarymanagement.dto.ReturnBookDto;
 import com.pandastudios.librarymanagement.entity.AuditLog;
 import com.pandastudios.librarymanagement.entity.User;
+import com.pandastudios.librarymanagement.repository.LoggingRepository;
 import com.pandastudios.librarymanagement.service.BorrowRecordService;
 import com.pandastudios.librarymanagement.service.UserService;
 
@@ -30,12 +31,14 @@ public class BorrowRecordController {
     private final BorrowRecordService borrowRecordService;
     private final UserService userService;
     private final RabbitTemplate rabbitTemplate;
+    private final LoggingRepository loggingRepository;      
 
 
-    public BorrowRecordController(BorrowRecordService borrowRecordService, UserService userService, RabbitTemplate rabbitTemplate) {
+    public BorrowRecordController(BorrowRecordService borrowRecordService, UserService userService, RabbitTemplate rabbitTemplate, LoggingRepository loggingRepository  ) {
         this.borrowRecordService = borrowRecordService;
         this.userService = userService;
         this.rabbitTemplate = rabbitTemplate;
+        this.loggingRepository = loggingRepository;
     }
 
     @PostMapping("/borrow-book")
@@ -47,7 +50,7 @@ public class BorrowRecordController {
         log.setAction("Borrow Book Attempt");
         log.setMessage("User "+currUser.getEmail()+" attempted to borrow book with ID "+dto.getBookId()+". Result: "+(response!=null?"Success":"Failure"));
 
-        
+        loggingRepository.save(log);
 
         return response;
     }
@@ -61,7 +64,7 @@ public class BorrowRecordController {
         AuditLog log=new AuditLog();
         log.setAction("Return Book Attempt");
         log.setMessage("User "+currUser.getEmail()+" attempted to return book corresponding to record ID "+dto.getRecordId()+". Result: "+(response!=null?"Success":"Failure"));
-
+        loggingRepository.save(log);
         return response;
     }
 
