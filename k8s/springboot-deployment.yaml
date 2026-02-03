@@ -18,11 +18,11 @@ spec:
           imagePullPolicy: Always
           env:
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:mysql://mysql-service:3306/librarydb"
+              value: "jdbc:mysql://34.135.101.107:3306/librarydb"
             - name: SPRING_DATASOURCE_USERNAME
-              value: "root"
+              value: "test_user"
             - name: SPRING_DATASOURCE_PASSWORD
-              value: "5fdkyi2mas"
+              value: "Test_db_01"
             - name: SPRING_RABBITMQ_HOST
               value: "rabbitmq-service"
           ports:
